@@ -1,0 +1,4 @@
+# 忽略 Library/ 文件夹下的所有文件
+Library/
+# 忽略 Temp/ 文件夹下的所有文件
+Temp/
