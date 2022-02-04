@@ -16,6 +16,7 @@ Shader "Learn/AlphaTestShader"
         pass
         {
             Tags { "LightMode" = "ForwardBase" }
+            Cull Off
 
             CGPROGRAM
 
