@@ -140,6 +140,7 @@ Shader "Learn/AlphaBlendBothSided"
 
 				ENDCG
 			}
+
 		}
 			FallBack "Transparent/VertexLit"
 }
