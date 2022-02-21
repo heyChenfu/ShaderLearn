@@ -37,7 +37,6 @@ Shader "Learn/SobelFilterDepth" {
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0, -1.0) * delta)) *  0.0;
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0, -1.0) * delta)) * -1.0;
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0,  0.0) * delta)) *  2.0;
-			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0,  0.0) * delta)) *  0.0;
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0,  0.0) * delta)) * -2.0;
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0,  1.0) * delta)) *  1.0;
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0,  1.0) * delta)) *  0.0;
@@ -47,7 +46,6 @@ Shader "Learn/SobelFilterDepth" {
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0, -1.0) * delta)) *  2.0;
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0, -1.0) * delta)) *  1.0;
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0,  0.0) * delta)) *  0.0;
-			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0,  0.0) * delta)) *  0.0;
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0,  0.0) * delta)) *  0.0;
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0,  1.0) * delta)) * -1.0;
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0,  1.0) * delta)) * -2.0;
