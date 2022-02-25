@@ -26,32 +26,39 @@ Shader "Learn/SobelFilterDepth" {
 		texture2D _CameraDepthTexture;
 		SamplerState sampler_CameraDepthTexture;
 		
-		//边缘检测算法
+		//3x3卷积核
+		// -1 -2 -1    -1  0  1
+		// 0  0  0     -2  0  2
+		// 1  2  1     -1  0  1
+		// 梯度值越大, 越有可能是边缘
 		float sobel (float2 uv) {
 			float2 delta = float2(_DeltaX, _DeltaY);
 			
+			//分别得到水平和竖直方向上的梯度值
 			float4 hr = float4(0, 0, 0, 0);
 			float4 vt = float4(0, 0, 0, 0);
 			
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0, -1.0) * delta)) *  1.0;
-			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0, -1.0) * delta)) *  0.0;
+			//hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0, -1.0) * delta)) *  0.0;
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0, -1.0) * delta)) * -1.0;
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0,  0.0) * delta)) *  2.0;
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0,  0.0) * delta)) * -2.0;
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0,  1.0) * delta)) *  1.0;
-			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0,  1.0) * delta)) *  0.0;
+			//hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0,  1.0) * delta)) *  0.0;
 			hr += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0,  1.0) * delta)) * -1.0;
 			
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0, -1.0) * delta)) *  1.0;
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0, -1.0) * delta)) *  2.0;
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0, -1.0) * delta)) *  1.0;
-			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0,  0.0) * delta)) *  0.0;
-			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0,  0.0) * delta)) *  0.0;
+			//vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0,  0.0) * delta)) *  0.0;
+			//vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0,  0.0) * delta)) *  0.0;
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2(-1.0,  1.0) * delta)) * -1.0;
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 0.0,  1.0) * delta)) * -2.0;
 			vt += _CameraDepthTexture.Sample(sampler_CameraDepthTexture, (uv + float2( 1.0,  1.0) * delta)) * -1.0;
 			
+			//获得整体梯度值, 出于性能考虑可以 G = |Gx| + |Gy|代替
 			return sqrt(hr * hr + vt * vt);
+			//return abs(hr) + abs(vt);
 		}
 		
 		float4 frag (v2f_img i) : COLOR {
