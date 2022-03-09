@@ -1,4 +1,5 @@
-﻿Shader "Learn/DepthTextureTest"
+﻿//摄像机深度图展示, 如果看到的深度图是全黑的, 可能摄像机的Far Clip Plane设置太大
+Shader "Learn/DepthTextureTest"
 {
 
 

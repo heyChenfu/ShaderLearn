@@ -8,7 +8,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class DepthTextureTest : MonoBehaviour
 {
-    private Material postEffectMat = null;
+    public Material postEffectMat = null;
     private Camera currentCamera = null;
 
     void Awake()
@@ -18,8 +18,6 @@ public class DepthTextureTest : MonoBehaviour
 
     void OnEnable()
     {
-        if (postEffectMat == null)
-            postEffectMat = new Material(Shader.Find("Learn/DepthTextureTest"));
         currentCamera.depthTextureMode |= DepthTextureMode.Depth;
     }
 
