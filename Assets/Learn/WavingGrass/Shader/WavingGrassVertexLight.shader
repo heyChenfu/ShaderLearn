@@ -5,7 +5,7 @@ Shader "Learn/WavingGrassVertexLight"
     {
 		_MainTex ("Main Tex", 2D) = "white" {}
 	    _Color("Colour", Color) = (1.0, 1.0, 1.0, 1.0)
-	    _WaveSize("WaveSize", Range(0.0, 2.0)) = 0.00125
+	    _WaveSize("WaveSize", Range(0.0, 2.0)) = 0.1
         _WaveLength("WaveLength", float) = 0.25
         _Frequency("Frequency", float) = 25
 		_HeightCutoff("Height Cutoff", Range(0.0, 1.0)) = 0.2 //高度限制, 低于此高度顶点不会运动
@@ -41,7 +41,7 @@ Shader "Learn/WavingGrassVertexLight"
 				float4 vertex : POSITION;
 				float3 normal : NORMAL;
 				float4 col : COLOR;
-				float2 uv : TEXCOORD0;
+				float2 texcoord : TEXCOORD0;
 				UNITY_VERTEX_INPUT_INSTANCE_ID
 			};
 
@@ -62,18 +62,16 @@ Shader "Learn/WavingGrassVertexLight"
 				v.vertex.x += sin(v.vertex.y + _Time * _Frequency) * _WaveSize * heightFactor;
 				v.vertex.z += cos(v.vertex.y + _Time * _Frequency) * _WaveSize * heightFactor;
 
-				float3 normalDirection = normalize(mul(float4(v.normal, 0.0), unity_WorldToObject).xyz);
-				float3 lightDirection;
+				//光照
+				float3 normalDirection = normalize(mul(unity_WorldToObject, float4(v.normal, 0.0)).xyz);
+				float3 lightDirection = normalize(_WorldSpaceLightPos0.xyz);
 				float atten = 1.25;
-
-				lightDirection = normalize(_WorldSpaceLightPos0.xyz);
-
 				float3 diffuseReflection = atten * _LightColor0.xyz * max(0.0 , dot(normalDirection, lightDirection));
 				float3 lightFinal = diffuseReflection + UNITY_LIGHTMODEL_AMBIENT.xyz;
 
 				o.col = float4(lightFinal * _Color.rgb, 1.0);
 				o.pos = UnityObjectToClipPos(v.vertex);
-				o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+				o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
 				return o;
 			}
 
