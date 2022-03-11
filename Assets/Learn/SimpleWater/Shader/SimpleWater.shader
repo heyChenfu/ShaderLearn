@@ -20,6 +20,7 @@ Shader "Learn/SimpleWater"
 
     SubShader
     {
+        Tags{ "Queue" = "Transparent" }
         Pass
         {
             CGPROGRAM

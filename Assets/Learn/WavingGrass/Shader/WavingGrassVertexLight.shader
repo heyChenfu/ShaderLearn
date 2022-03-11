@@ -10,7 +10,7 @@ Shader "Learn/WavingGrassVertexLight"
         _Frequency("Frequency", float) = 25
 		_HeightCutoff("Height Cutoff", Range(0.0, 1.0)) = 0.2 //高度限制, 低于此高度顶点不会运动
 		_HeightFactor("Height Factor", float) = 1 //随顶点高度增加波动幅度越大
-		_Cutoff("AlpheCutoff", Range(0, 1)) = 0.5 //Alpha阈值
+		_Cutoff("AlphaCutoff", Range(0, 1)) = 0.5 //Alpha阈值
     }
     SubShader
     {
