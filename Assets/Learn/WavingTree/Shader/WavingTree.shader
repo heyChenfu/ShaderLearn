@@ -46,35 +46,34 @@ Shader "Learn/WavingTree"
         
         void vert (inout appdata_full v) {
         
+            // 风吹效果算法 =====================================================
             const float _WindSpeed  = (_ShakeWindspeed  +  v.color.g );    
         
             const float4 _waveXSize = float4(0.048, 0.06, 0.24, 0.096);
-            const float4 _waveZSize = float4 (0.024, .08, 0.08, 0.2);
+            const float4 _waveZSize = float4 (0.024, 0.08, 0.08, 0.2);
             const float4 waveSpeed = float4 (1.2, 2, 1.6, 4.8);
         
             float4 _waveXmove = float4(0.024, 0.04, -0.12, 0.096);
-            float4 _waveZmove = float4 (0.006, .02, -0.02, 0.1);
+            float4 _waveYmove = float4 (0.01, 0.03, -0.04, 0.08);
+            float4 _waveZmove = float4 (0.006, 0.02, -0.02, 0.1);
         
             float4 waves;
             waves = v.vertex.x * _waveXSize;
             waves += v.vertex.z * _waveZSize;
         
-            waves += _Time.x * (1 - _ShakeTime * 2 - v.color.b ) * waveSpeed *_WindSpeed;
-        
+            waves += _Time.x * waveSpeed * _WindSpeed + v.vertex.x + v.vertex.z;
+
             float4 s, c;
             waves = frac (waves);
-            FastSinCos (waves, s,c);
-        
-            float waveAmount = v.texcoord.y * (v.color.a + _ShakeBending);
-            s *= waveAmount;
-        
+            FastSinCos (waves, s, c);
+            s *= _ShakeBending;
             s *= normalize (waveSpeed);
-        
-            s = s * s;
-            float3 waveMove = float3 (0,0,0);
-            waveMove.x = dot (s, _waveXmove);
+
+            float3 waveMove = float3 (0, 0, 0);
+            //waveMove.x = dot (s, _waveXmove);
+            waveMove.y = dot (s, _waveYmove);
             waveMove.z = dot (s, _waveZmove);
-            v.vertex.xz += mul ((float3x3)unity_WorldToObject, waveMove).xz;
+            v.vertex.xyz += mul ((float3x3)unity_WorldToObject, waveMove);
         
         }
         
