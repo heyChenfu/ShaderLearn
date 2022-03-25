@@ -78,6 +78,7 @@ Shader "Learn/WavingTreeNoise"
                 UNITY_SETUP_INSTANCE_ID(v);
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.posWorld = mul(unity_ObjectToWorld, v.vertex);
+                UNITY_TRANSFER_FOG(o, o.vertex);
                 TRANSFER_VERTEX_TO_FRAGMENT(o);
 
                 return o;

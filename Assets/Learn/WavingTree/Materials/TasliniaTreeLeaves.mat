@@ -8,10 +8,10 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: TasliniaTreeLeaves
-  m_Shader: {fileID: 4800000, guid: ac8e42580f6069b4f81124a357ee6b80, type: 3}
+  m_Shader: {fileID: 4800000, guid: 13a2ed02b19c3e74ba23efb22e623a97, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 1
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -66,16 +66,19 @@ Material:
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
+    - _OffsetGradientStrength: 0.7
     - _Parallax: 0.02
-    - _ShakeBending: 1
-    - _ShakeDisplacement: 1
-    - _ShakeTime: 0.2
-    - _ShakeWindspeed: 1
+    - _ShakeBlending: 1
+    - _ShakeWindSpeed: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
+    - _WindDirRate: 0.5
+    - _WindStrength: 1
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _MainColor: {r: 1, g: 1, b: 1, a: 1}
+    - _WindDirection: {r: 0.5, g: 0.5, b: 0.5, a: 0}

@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TreeLeaves
-  m_Shader: {fileID: 4800000, guid: 13a2ed02b19c3e74ba23efb22e623a97, type: 3}
+  m_Name: WavingTreeNoise
+  m_Shader: {fileID: 4800000, guid: 2c75b6fe0a55e8a4983577265207c0f2, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -43,11 +43,11 @@ Material:
         m_Texture: {fileID: 2800000, guid: 8e5f7711364e63d459128762c0ca365e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _MaskTex:
+    - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _MetallicGlossMap:
+    - _NoiseTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -64,27 +64,20 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _EdgeLitRate: 0.3
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _OffsetGradientStrength: 0.7
     - _Parallax: 0.02
-    - _ShakeBlending: 2
-    - _ShakeWindSpeed: 3
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
-    - _WindDirRate: 0.5
-    - _WindStrength: 1
+    - _WaveScale: 0.5
+    - _WaveSpeed: 0.6
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.29532647, g: 0.5471698, b: 0.28648984, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MainColor: {r: 0.49289542, g: 1, b: 0.4292453, a: 1}
-    - _ShadowColor: {r: 1, g: 1, b: 1, a: 1}
-    - _WindDirection: {r: 0.5, g: 0.5, b: 0.5, a: 0}
