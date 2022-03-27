@@ -70,7 +70,7 @@ Material:
     - _ShakeBending: 1
     - _ShakeDisplacement: 1
     - _ShakeTime: 0.2
-    - _ShakeWindspeed: 1
+    - _ShakeWindspeed: 2
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

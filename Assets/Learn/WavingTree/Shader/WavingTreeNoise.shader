@@ -176,4 +176,6 @@ Shader "Learn/WavingTreeNoise"
         }
 
     }
+
+    Fallback "Mobile/VertexLit"
 }

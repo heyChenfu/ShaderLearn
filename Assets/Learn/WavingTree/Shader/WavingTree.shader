@@ -6,8 +6,8 @@ Shader "Learn/WavingTree"
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
         _ShakeTime ("Shake Time", Range (0, 1.0)) = 1.0
-        _ShakeWindspeed ("Shake Windspeed", Range (0, 1.0)) = 1.0
-        _ShakeBending ("Shake Bending", Range (0, 1.0)) = 1.0
+        _ShakeWindspeed ("Shake Windspeed", float) = 1.0
+        _ShakeBending ("Shake Bending", float) = 1.0
     }
     
     SubShader {

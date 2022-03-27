@@ -1,4 +1,4 @@
-﻿//风吹草Shader
+﻿//风吹草Shader, 无阴影处理
 Shader "Learn/WavingGrassVertexLight"
 {
     Properties
