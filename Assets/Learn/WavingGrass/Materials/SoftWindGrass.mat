@@ -68,21 +68,23 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _HeightCutoff: 0.1
+    - _HeightPow: 2
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _ShakeBending: 1
-    - _ShakeWaveSize: 4
+    - _ShakeWaveSize: 0.4
     - _ShakeWindSpeed: 2
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _WindDirRate: 1
+    - _ZUPPER: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.54214466, g: 0.7735849, b: 0.3466536, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GrassColorBottom: {r: 0.09812211, g: 0.3301887, b: 0.1004535, a: 1}
     - _GrassColorTop: {r: 0.7907639, g: 0.990566, b: 0.62144, a: 1}

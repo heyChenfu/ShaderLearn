@@ -167,10 +167,6 @@ Shader "Learn/TreeLeaves"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            //apply fog
-            #pragma multi_compile_fog
-            //apply light
-            #pragma multi_compile_fwdbase
             #pragma multi_compile_shadowcaster
 
             #include "UnityCG.cginc"
@@ -181,23 +177,16 @@ Shader "Learn/TreeLeaves"
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
                 float4 normal : NORMAL;
-                //UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct v2f{
                 float4 pos : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                //UNITY_FOG_COORDS(2)
-                //LIGHTING_COORDS(3, 4)
             };
 
             sampler2D _MainTex;
-            //sampler2D _MaskTex;
             float4 _MainTex_ST;
-            //float4 _MaskTex_ST;
             float4 _MainColor;
-            //float4 _ShadowColor;
-            //float _EdgeLitRate;
             float _Cutoff;
             float _OffsetGradientStrength, _ShakeWindSpeed, _ShakeBlending, _WindDirRate;
             float4 _WindDirection;

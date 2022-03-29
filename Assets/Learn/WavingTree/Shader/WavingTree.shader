@@ -11,79 +11,231 @@ Shader "Learn/WavingTree"
     }
     
     SubShader {
-        Tags {"Queue"="AlphaTest" "IgnoreProjector"="True" "RenderType"="TransparentCutout"}
-        LOD 200
+        Tags {"RenderType"="TransparentCutout"}
     
-        CGPROGRAM
-        #pragma target 3.0
-        #pragma surface surf Lambert alphatest:_Cutoff vertex:vert addshadow
-        
-        sampler2D _MainTex;
-        fixed4 _Color;
-        float _ShakeTime;
-        float _ShakeWindspeed;
-        float _ShakeBending;
-        
-        struct Input {
-            float2 uv_MainTex;
-        };
-        
-        void FastSinCos (float4 val, out float4 s, out float4 c) {
-            val = val * 6.408849 - 3.1415927;
-            float4 r5 = val * val;
-            float4 r6 = r5 * r5;
-            float4 r7 = r6 * r5;
-            float4 r8 = r6 * r5;
-            float4 r1 = r5 * val;
-            float4 r2 = r1 * r5;
-            float4 r3 = r2 * r5;
-            float4 sin7 = {1, -0.16161616, 0.0083333, -0.00019841} ;
-            float4 cos8  = {-0.5, 0.041666666, -0.0013888889, 0.000024801587} ;
-            s =  val + r1 * sin7.y + r2 * sin7.z + r3 * sin7.w;
-            c = 1 + r5 * cos8.x + r6 * cos8.y + r7 * cos8.z + r8 * cos8.w;
-        }
-        
-        
-        void vert (inout appdata_full v) {
-        
-            // 风吹效果算法 =====================================================
-            const float _WindSpeed  = (_ShakeWindspeed  +  v.color.g );    
-        
-            const float4 _waveXSize = float4(0.048, 0.06, 0.24, 0.096);
-            const float4 _waveZSize = float4 (0.024, 0.08, 0.08, 0.2);
-            const float4 waveSpeed = float4 (1.2, 2, 1.6, 4.8);
-        
-            float4 _waveXmove = float4(0.024, 0.04, -0.12, 0.096);
-            float4 _waveYmove = float4 (0.01, 0.03, -0.04, 0.08);
-            float4 _waveZmove = float4 (0.006, 0.02, -0.02, 0.1);
-        
-            float4 waves;
-            waves = v.vertex.x * _waveXSize;
-            waves += v.vertex.z * _waveZSize;
-        
-            waves += _Time.x * waveSpeed * _WindSpeed + v.vertex.x + v.vertex.z;
+        Pass
+        {
+            Tags { "Queue" = "AlphaTest" "LightMode" = "ForwardBase" }
+            Cull Off
 
-            float4 s, c;
-            waves = frac (waves);
-            FastSinCos (waves, s, c);
-            s *= _ShakeBending;
-            s *= normalize (waveSpeed);
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            //apply fog
+            #pragma multi_compile_fog
+            //apply light
+            #pragma multi_compile_fwdbase
+            #pragma multi_compile_instancing
 
-            float3 waveMove = float3 (0, 0, 0);
-            //waveMove.x = dot (s, _waveXmove);
-            waveMove.y = dot (s, _waveYmove);
-            waveMove.z = dot (s, _waveZmove);
-            v.vertex.xyz += mul ((float3x3)unity_WorldToObject, waveMove);
-        
+            #include "UnityCG.cginc"
+            #include "AutoLight.cginc"
+            #include "Lighting.cginc"
+
+            struct appdata{
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+                float4 normal : NORMAL;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f{
+                float4 pos : SV_POSITION;
+                fixed3 diff : COLOR0;
+                float2 uv : TEXCOORD0;
+                float4 posWorld : TEXCOORD1;
+                UNITY_FOG_COORDS(2)
+                LIGHTING_COORDS(3, 4)
+            };
+
+            float4 _Color;
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            float _Cutoff, _ShakeTime, _ShakeWindspeed, _ShakeBending;
+
+            void FastSinCos (float4 val, out float4 s, out float4 c) {
+                val = val * 6.408849 - 3.1415927;
+                float4 r5 = val * val;
+                float4 r6 = r5 * r5;
+                float4 r7 = r6 * r5;
+                float4 r8 = r6 * r5;
+                float4 r1 = r5 * val;
+                float4 r2 = r1 * r5;
+                float4 r3 = r2 * r5;
+                float4 sin7 = {1, -0.16161616, 0.0083333, -0.00019841} ;
+                float4 cos8  = {-0.5, 0.041666666, -0.0013888889, 0.000024801587} ;
+                s =  val + r1 * sin7.y + r2 * sin7.z + r3 * sin7.w;
+                c = 1 + r5 * cos8.x + r6 * cos8.y + r7 * cos8.z + r8 * cos8.w;
+            }
+
+            v2f vert (appdata v)
+            {
+                v2f o;
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+
+                //漫反射
+                half3 worldNormal = UnityObjectToWorldNormal(v.normal);
+                o.diff = saturate(dot(worldNormal, _WorldSpaceLightPos0.xyz));
+
+                // 风吹效果算法 =====================================================
+                const float _WindSpeed  = _ShakeWindspeed;
+            
+                const float4 _waveXSize = float4(0.048, 0.06, 0.24, 0.096);
+                const float4 _waveZSize = float4 (0.024, 0.08, 0.08, 0.2);
+                const float4 waveSpeed = float4 (1.2, 2, 1.6, 4.8);
+            
+                float4 _waveXmove = float4(0.024, 0.04, -0.12, 0.096);
+                float4 _waveYmove = float4 (0.01, 0.03, -0.04, 0.08);
+                float4 _waveZmove = float4 (0.006, 0.02, -0.02, 0.1);
+            
+                float4 waves;
+                waves = v.vertex.x * _waveXSize;
+                waves += v.vertex.z * _waveZSize;
+            
+                waves += _Time.x * waveSpeed * _WindSpeed + v.vertex.x + v.vertex.z;
+
+                float4 s, c;
+                waves = frac (waves);
+                FastSinCos (waves, s, c);
+                s *= _ShakeBending;
+                s *= normalize (waveSpeed);
+
+                float3 waveMove = float3 (0, 0, 0);
+                //waveMove.x = dot (s, _waveXmove);
+                waveMove.y = dot (s, _waveYmove);
+                waveMove.z = dot (s, _waveZmove);
+                v.vertex.xyz += mul ((float3x3)unity_WorldToObject, waveMove);
+                // ===================================================================
+
+                UNITY_SETUP_INSTANCE_ID(v);
+                o.pos = UnityObjectToClipPos(v.vertex);
+                o.posWorld = mul(unity_ObjectToWorld, v.vertex);
+                UNITY_TRANSFER_FOG(o, o.vertex);
+                TRANSFER_VERTEX_TO_FRAGMENT(o);
+
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_TARGET
+            {
+                fixed4 texCol = tex2D(_MainTex, i.uv);
+                fixed4 col = _Color * texCol;
+                // 透明度测试
+                clip(col.a - _Cutoff);
+
+                fixed3 albedo = _LightColor0.rgb * col.rgb * i.diff;
+                UNITY_LIGHT_ATTENUATION(atten, i, i.posWorld);
+                albedo *= atten;
+                // apply fog
+                UNITY_APPLY_FOG(i.fogCoord, albedo);
+
+                return fixed4(albedo, col.a);
+            }
+
+            ENDCG
+        }
+
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags { "LightMode"="ShadowCaster" }
+            Cull Off
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #pragma multi_compile_shadowcaster
+
+            #include "UnityCG.cginc"
+            #include "AutoLight.cginc"
+            #include "Lighting.cginc"
+
+            struct appdata{
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+                float4 normal : NORMAL;
+            };
+
+            struct v2f{
+                float4 pos : SV_POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            float4 _Color;
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            float _Cutoff, _ShakeTime, _ShakeWindspeed, _ShakeBending;
+
+            void FastSinCos (float4 val, out float4 s, out float4 c) {
+                val = val * 6.408849 - 3.1415927;
+                float4 r5 = val * val;
+                float4 r6 = r5 * r5;
+                float4 r7 = r6 * r5;
+                float4 r8 = r6 * r5;
+                float4 r1 = r5 * val;
+                float4 r2 = r1 * r5;
+                float4 r3 = r2 * r5;
+                float4 sin7 = {1, -0.16161616, 0.0083333, -0.00019841} ;
+                float4 cos8  = {-0.5, 0.041666666, -0.0013888889, 0.000024801587} ;
+                s =  val + r1 * sin7.y + r2 * sin7.z + r3 * sin7.w;
+                c = 1 + r5 * cos8.x + r6 * cos8.y + r7 * cos8.z + r8 * cos8.w;
+            }
+
+            v2f vert (appdata v)
+            {
+                v2f o;
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+
+                // 风吹效果算法 =====================================================
+                const float _WindSpeed  = _ShakeWindspeed;
+            
+                const float4 _waveXSize = float4(0.048, 0.06, 0.24, 0.096);
+                const float4 _waveZSize = float4 (0.024, 0.08, 0.08, 0.2);
+                const float4 waveSpeed = float4 (1.2, 2, 1.6, 4.8);
+            
+                float4 _waveXmove = float4(0.024, 0.04, -0.12, 0.096);
+                float4 _waveYmove = float4 (0.01, 0.03, -0.04, 0.08);
+                float4 _waveZmove = float4 (0.006, 0.02, -0.02, 0.1);
+            
+                float4 waves;
+                waves = v.vertex.x * _waveXSize;
+                waves += v.vertex.z * _waveZSize;
+            
+                waves += _Time.x * waveSpeed * _WindSpeed + v.vertex.x + v.vertex.z;
+
+                float4 s, c;
+                waves = frac (waves);
+                FastSinCos (waves, s, c);
+                s *= _ShakeBending;
+                s *= normalize (waveSpeed);
+
+                float3 waveMove = float3 (0, 0, 0);
+                //waveMove.x = dot (s, _waveXmove);
+                waveMove.y = dot (s, _waveYmove);
+                waveMove.z = dot (s, _waveZmove);
+                v.vertex.xyz += mul ((float3x3)unity_WorldToObject, waveMove);
+                // ===================================================================
+
+                o.pos = UnityObjectToClipPos(v.vertex);
+                TRANSFER_SHADOW_CASTER(o);
+
+                return o;
+            }
+
+            fixed4 frag(v2f i) : SV_TARGET
+            {
+                fixed4 texCol = tex2D(_MainTex, i.uv);
+                fixed4 col = _Color * texCol;
+                // 透明度测试
+                clip(col.a - _Cutoff);
+
+                SHADOW_CASTER_FRAGMENT(i)
+            }
+
+            ENDCG
         }
         
-        void surf (Input IN, inout SurfaceOutput o) {
-            fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
-            o.Albedo = c.rgb;
-            o.Alpha = c.a;
-        }
-        ENDCG
     }
     
-    Fallback "Transparent/Cutout/VertexLit"
+    FallBack "Transparent/VertexLit"
+    //Fallback "Transparent/Cutout/VertexLit"
 }

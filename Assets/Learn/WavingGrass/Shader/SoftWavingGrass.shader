@@ -3,17 +3,17 @@ Shader "Learn/SoftWavingGrass"
 {
     Properties
     {
-        //_MainTex ("Texture", 2D) = "white" {}
-        _GradientTex ("Gradient Texture", 2D) = "white" {}
-        _GrassColorTop("Grass Color Top", Color) = (1, 1, 1, 1)
-        _GrassColorBottom("Grass Color Bottom", Color) = (1, 1, 1, 1)
-        _ShadowColor("Shadow Color", Color) = (1, 1, 1, 1)
+        _Color ("Main Color", Color) = (1, 1, 1, 1)
+        _MainTex ("Base(RGB) Trans(A)", 2D) = "white" {}
+        //_GradientTex ("Gradient Texture", 2D) = "white" {}
+        _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
 
         _ShakeWaveSize("Wave Size", float) = 1
         _ShakeWindSpeed("Shake Wind Speed", float) = 1.0
         _ShakeBending ("Shake Bending", Range (0, 1.0)) = 1.0
 
         _HeightCutoff("Height Cutoff", Range(0.0, 1.0)) = 0.1 //高度限制, 低于此高度顶点不会运动
+        _HeightPow("Height Pow", float) = 2 //高度放大倍数
 
     }
     SubShader
@@ -53,15 +53,16 @@ Shader "Learn/SoftWavingGrass"
                 float2 uv : TEXCOORD0;
                 float4 posWorld : TEXCOORD1;
                 UNITY_FOG_COORDS(2)
-                LIGHTING_COORDS(3, 4)
+                //LIGHTING_COORDS(3, 4)
 
             };
 
-            sampler2D _GradientTex;
-            float4 _GradientTex_ST;
-            float4 _GrassColorTop, _GrassColorBottom, _ShadowColor;
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            float4 _Color;
+            float _Cutoff;
             float _ShakeWaveSize, _ShakeWindSpeed, _ShakeBending;
-            float _HeightCutoff;
+            float _HeightCutoff, _HeightPow;
 
             void FastSinCos (float4 val, out float4 s, out float4 c) {
                 val = val * 6.408849 - 3.1415927;
@@ -82,10 +83,11 @@ Shader "Learn/SoftWavingGrass"
             {
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v);
-                o.uv = TRANSFORM_TEX(v.uv, _GradientTex);
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+
                 // 摆动的高度裁剪以及高度放大 ========================================
 				float heightFactor = v.vertex.y > _HeightCutoff;
-				heightFactor = heightFactor * pow(v.vertex.y, 2); //波动幅度随高度增加
+				heightFactor = heightFactor * pow(_HeightPow, v.vertex.y); //pow(v.vertex.y, _HeightPow); //波动幅度随高度增加
 
                 // 风吹效果算法 =====================================================
                 const float _WindSpeed = _ShakeWindSpeed;
@@ -110,6 +112,7 @@ Shader "Learn/SoftWavingGrass"
             
                 float3 waveMove = float3(0,0,0);
                 waveMove.x = dot (s, _waveXmove) * _ShakeWaveSize * heightFactor;
+                //waveMove.y = dot (s, _waveZmove) * _ShakeWaveSize * heightFactor;
                 waveMove.z = dot (s, _waveZmove) * _ShakeWaveSize * heightFactor;
 
                 float3 waveForce = mul ((float3x3)unity_WorldToObject, waveMove).xyz;
@@ -117,19 +120,19 @@ Shader "Learn/SoftWavingGrass"
                 // ==================================================================
 
                 // 顶点光照 ==========================================================
-                float3 normalDirection = normalize(mul(unity_WorldToObject, float4(v.normal, 0.0)).xyz);
-				float3 lightDirection = normalize(_WorldSpaceLightPos0.xyz);
-				float atten = 1.25;
-				float3 diffuseReflection = atten * _LightColor0.xyz * max(0.0 , dot(normalDirection, lightDirection));
-				float3 lightFinal = diffuseReflection + UNITY_LIGHTMODEL_AMBIENT.xyz;
+                // float3 normalDirection = normalize(mul(unity_WorldToObject, float4(v.normal, 0.0)).xyz);
+				// float3 lightDirection = normalize(_WorldSpaceLightPos0.xyz);
+				// float atten = 1.25;
+				// float3 diffuseReflection = atten * _LightColor0.xyz * max(0.0 , dot(normalDirection, lightDirection));
+				// float3 lightFinal = diffuseReflection + UNITY_LIGHTMODEL_AMBIENT.xyz;
                 // ===================================================================
 
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.posWorld = mul(unity_ObjectToWorld, v.vertex);
-                o.color = lightFinal;
+                //o.color = lightFinal;
 
                 UNITY_TRANSFER_FOG(o, o.pos);
-                TRANSFER_VERTEX_TO_FRAGMENT(o);
+                //TRANSFER_VERTEX_TO_FRAGMENT(o);
 
                 return o;
             }
@@ -137,12 +140,15 @@ Shader "Learn/SoftWavingGrass"
             fixed4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                fixed4 Gradient = tex2D(_GradientTex, i.uv);
-                fixed4 GradientColor = lerp(_GrassColorBottom, _GrassColorTop, Gradient.g);
-                fixed4 col = float4(i.color, 1) * GradientColor;
+                // fixed4 Gradient = tex2D(_GradientTex, i.uv);
+                // fixed4 GradientColor = lerp(_GrassColorBottom, _GrassColorTop, Gradient.g);
+                fixed4 texCol = tex2D(_MainTex, i.uv);
+                fixed4 col = _Color * texCol;
+                // 透明度测试
+                clip(col.a - _Cutoff);
 
-                UNITY_LIGHT_ATTENUATION(atten, i, i.posWorld);
-                col *= atten;
+                // UNITY_LIGHT_ATTENUATION(atten, i, i.posWorld);
+                // col *= atten;
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
 
@@ -180,11 +186,12 @@ Shader "Learn/SoftWavingGrass"
 
             };
 
-            sampler2D _GradientTex;
-            float4 _GradientTex_ST;
-            float4 _GrassColorTop, _GrassColorBottom, _ShadowColor;
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+            float4 _Color;
+            float _Cutoff;
             float _ShakeWaveSize, _ShakeWindSpeed, _ShakeBending;
-            float _HeightCutoff;
+            float _HeightCutoff, _HeightPow;
 
             void FastSinCos (float4 val, out float4 s, out float4 c) {
                 val = val * 6.408849 - 3.1415927;
@@ -205,10 +212,11 @@ Shader "Learn/SoftWavingGrass"
             {
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v);
-                o.uv = TRANSFORM_TEX(v.uv, _GradientTex);
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+
                 // 摆动的高度裁剪以及高度放大 ========================================
-                float heightFactor = v.vertex.y > _HeightCutoff;
-                heightFactor = heightFactor * pow(v.vertex.y, 2); //波动幅度随高度增加
+				float heightFactor = v.vertex.y > _HeightCutoff;
+				heightFactor = heightFactor * pow(_HeightPow, v.vertex.y); //pow(v.vertex.y, _HeightPow); //波动幅度随高度增加
 
                 // 风吹效果算法 =====================================================
                 const float _WindSpeed = _ShakeWindSpeed;
@@ -233,6 +241,7 @@ Shader "Learn/SoftWavingGrass"
             
                 float3 waveMove = float3(0,0,0);
                 waveMove.x = dot (s, _waveXmove) * _ShakeWaveSize * heightFactor;
+                //waveMove.y = dot (s, _waveZmove) * _ShakeWaveSize * heightFactor;
                 waveMove.z = dot (s, _waveZmove) * _ShakeWaveSize * heightFactor;
 
                 float3 waveForce = mul ((float3x3)unity_WorldToObject, waveMove).xyz;
@@ -248,6 +257,11 @@ Shader "Learn/SoftWavingGrass"
 
             fixed4 frag (v2f i) : SV_Target
             {
+                fixed4 texCol = tex2D(_MainTex, i.uv);
+                fixed4 col = texCol * _Color;
+                // 透明度测试
+                clip(col.a - _Cutoff);
+
                 SHADOW_CASTER_FRAGMENT(i)
             }
             ENDCG
