@@ -5,7 +5,6 @@ Shader "Learn/WavingTree"
         _Color ("Main Color", Color) = (1,1,1,1)
         _MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
         _Cutoff ("Alpha cutoff", Range(0,1)) = 0.5
-        _ShakeTime ("Shake Time", Range (0, 1.0)) = 1.0
         _ShakeWindspeed ("Shake Windspeed", float) = 1.0
         _ShakeBending ("Shake Bending", float) = 1.0
     }
@@ -40,7 +39,7 @@ Shader "Learn/WavingTree"
 
             struct v2f{
                 float4 pos : SV_POSITION;
-                fixed3 diff : COLOR0;
+                float3 diff : COLOR;
                 float2 uv : TEXCOORD0;
                 float4 posWorld : TEXCOORD1;
                 UNITY_FOG_COORDS(2)
@@ -50,7 +49,7 @@ Shader "Learn/WavingTree"
             float4 _Color;
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _Cutoff, _ShakeTime, _ShakeWindspeed, _ShakeBending;
+            float _Cutoff, _ShakeWindspeed, _ShakeBending;
 
             void FastSinCos (float4 val, out float4 s, out float4 c) {
                 val = val * 6.408849 - 3.1415927;
@@ -72,11 +71,7 @@ Shader "Learn/WavingTree"
                 v2f o;
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 
-                //漫反射
-                half3 worldNormal = UnityObjectToWorldNormal(v.normal);
-                o.diff = saturate(dot(worldNormal, _WorldSpaceLightPos0.xyz));
-
-                // 风吹效果算法 =====================================================
+                //======================风吹效果算法========================
                 const float _WindSpeed  = _ShakeWindspeed;
             
                 const float4 _waveXSize = float4(0.048, 0.06, 0.24, 0.096);
@@ -104,12 +99,19 @@ Shader "Learn/WavingTree"
                 waveMove.y = dot (s, _waveYmove);
                 waveMove.z = dot (s, _waveZmove);
                 v.vertex.xyz += mul ((float3x3)unity_WorldToObject, waveMove);
-                // ===================================================================
+                // =========================================================
 
-                UNITY_SETUP_INSTANCE_ID(v);
+                //=====================顶点漫反射====================
+				float3 normalDirection = normalize(mul(unity_WorldToObject, v.normal.xyz));
+				float3 lightDirection = normalize(_WorldSpaceLightPos0.xyz);
+				float3 diffuseReflection = _LightColor0.xyz * max(0.0 , dot(normalDirection, lightDirection));
+                // =================================================
+
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.posWorld = mul(unity_ObjectToWorld, v.vertex);
-                UNITY_TRANSFER_FOG(o, o.vertex);
+                o.diff = diffuseReflection;
+                UNITY_SETUP_INSTANCE_ID(v);
+                UNITY_TRANSFER_FOG(o, o.pos);
                 TRANSFER_VERTEX_TO_FRAGMENT(o);
 
                 return o;
@@ -117,18 +119,18 @@ Shader "Learn/WavingTree"
 
             fixed4 frag(v2f i) : SV_TARGET
             {
-                fixed4 texCol = tex2D(_MainTex, i.uv);
-                fixed4 col = _Color * texCol;
+                fixed4 albedo = tex2D(_MainTex, i.uv);
+                fixed4 ambient = _Color * albedo * UNITY_LIGHTMODEL_AMBIENT;
                 // 透明度测试
-                clip(col.a - _Cutoff);
+                clip(albedo.a - _Cutoff);
 
-                fixed3 albedo = _LightColor0.rgb * col.rgb * i.diff;
+                fixed4 diffuse = fixed4(albedo.rgb * i.diff, 1);
                 UNITY_LIGHT_ATTENUATION(atten, i, i.posWorld);
-                albedo *= atten;
+                fixed4 col = ambient + diffuse * atten;
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, albedo);
 
-                return fixed4(albedo, col.a);
+                return col;
             }
 
             ENDCG
@@ -163,7 +165,7 @@ Shader "Learn/WavingTree"
             float4 _Color;
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _Cutoff, _ShakeTime, _ShakeWindspeed, _ShakeBending;
+            float _Cutoff, _ShakeWindspeed, _ShakeBending;
 
             void FastSinCos (float4 val, out float4 s, out float4 c) {
                 val = val * 6.408849 - 3.1415927;
@@ -236,6 +238,6 @@ Shader "Learn/WavingTree"
         
     }
     
-    FallBack "Transparent/VertexLit"
-    //Fallback "Transparent/Cutout/VertexLit"
+    //FallBack "Transparent/VertexLit"
+    Fallback "Transparent/Cutout/VertexLit"
 }

@@ -78,7 +78,7 @@ Shader "Learn/WavingTreeNoise"
                 UNITY_SETUP_INSTANCE_ID(v);
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.posWorld = mul(unity_ObjectToWorld, v.vertex);
-                UNITY_TRANSFER_FOG(o, o.vertex);
+                UNITY_TRANSFER_FOG(o, o.pos);
                 TRANSFER_VERTEX_TO_FRAGMENT(o);
 
                 return o;
@@ -103,27 +103,20 @@ Shader "Learn/WavingTreeNoise"
 
         Pass
         {
-            Name "ShadowCaster"
-            Tags { "LightMode"="ShadowCaster" }
-            Cull Off
+			Name "ShadowCaster"
+			Tags { "LightMode" = "ShadowCaster" }
 
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            #pragma multi_compile_fog
-            #pragma multi_compile_shadowcaster
+			ZWrite On ZTest LEqual Cull Off
 
-            #include "UnityCG.cginc"
-            #include "Lighting.cginc"
-            //#include "AutoLight.cginc"
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma target 2.0
+			#pragma multi_compile_shadowcaster
+			#pragma multi_compile_instancing // allow instanced shadow pass for most of the shaders
+			#include "UnityCG.cginc"
+
             #include "Assets/Shader/SimplexNoise3D.hlsl"
-
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float3 normal : NORMAL;
-                float2 uv : TEXCOORD0;
-            };
 
             struct v2f
             {
@@ -131,9 +124,6 @@ Shader "Learn/WavingTreeNoise"
                 float3 color : COLOR;
                 float2 texcood : TEXCOORD0;
                 float4 posWorld : TEXCOORD1;
-                UNITY_FOG_COORDS(2)
-                //LIGHTING_COORDS(3, 4)
-
             };
 
             float4 _Color;
@@ -142,22 +132,21 @@ Shader "Learn/WavingTreeNoise"
             float _Cutoff;
             float _WaveSpeed, _WaveScale;
 
-            v2f vert (appdata v)
+            v2f vert (appdata_base v)
             {
                 v2f o;
-                o.posWorld = mul(unity_ObjectToWorld, v.vertex);
-                o.texcood = TRANSFORM_TEX(v.uv, _MainTex);
+                fixed4 posWorld = mul(unity_ObjectToWorld, v.vertex);
+                o.texcood = TRANSFORM_TEX(v.texcoord, _MainTex);
                 // 风吹效果算法=======================================================
                 //3D噪声 世界坐标运算
                 float timeScale = _Time.y * _WaveSpeed;
-                o.posWorld.xyz += timeScale;
-                float noiseSample = SimplexNoise(o.posWorld);
+                posWorld.xyz += timeScale;
+                float noiseSample = SimplexNoise(posWorld);
                 noiseSample = noiseSample * _WaveScale * _MainTex_ST.xy * 0.01 * 30;
                 v.vertex += noiseSample;
                 // ==================================================================
 
                 o.pos = UnityObjectToClipPos(v.vertex);
-                o.posWorld = mul(unity_ObjectToWorld, v.vertex);
                 TRANSFER_SHADOW_CASTER(o)
 
                 return o;

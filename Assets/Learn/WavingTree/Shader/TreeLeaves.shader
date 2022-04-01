@@ -91,8 +91,8 @@ Shader "Learn/TreeLeaves"
 
                 //漫反射
                 half3 worldNormal = UnityObjectToWorldNormal(v.normal);
-                //half3 worldNormal = normalize(UnityObjectToWorldNormal(v.vertex));
-                o.diff = saturate(dot(worldNormal, _WorldSpaceLightPos0.xyz));
+                float3 lightDirection = normalize(_WorldSpaceLightPos0.xyz);
+                o.diff = _LightColor0.xyz * saturate(dot(worldNormal, lightDirection));
 
                 // 风吹效果算法 =====================================================
                 const float _WindSpeed = _ShakeWindSpeed;
@@ -141,18 +141,18 @@ Shader "Learn/TreeLeaves"
 
             fixed4 frag(v2f i) : SV_TARGET
             {
-                fixed4 texCol = tex2D(_MainTex, i.uv);
-                fixed4 col = _MainColor * texCol;
+                fixed4 albedo = tex2D(_MainTex, i.uv);
+                fixed4 ambient = _MainColor * albedo * UNITY_LIGHTMODEL_AMBIENT;
                 // 透明度测试
-                clip(col.a - _Cutoff);
+                clip(albedo.a - _Cutoff);
 
-                fixed3 albedo = _LightColor0.rgb * col.rgb * i.diff;
+                fixed4 diffuse = fixed4(albedo.rgb * i.diff, 1);
                 UNITY_LIGHT_ATTENUATION(atten, i, i.posWorld);
-                albedo *= atten;
+                fixed4 col = ambient + diffuse * atten;
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, albedo);
 
-                return fixed4(albedo, col.a);
+                return col;
             }
 
             ENDCG
