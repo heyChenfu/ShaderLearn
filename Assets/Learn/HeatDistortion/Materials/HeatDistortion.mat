@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: WavingBushVertexLight
-  m_Shader: {fileID: 4800000, guid: f02e25a6aab31ab429b8428aa7db5f83, type: 3}
-  m_ShaderKeywords: 
+  m_Name: HeatDistortion
+  m_Shader: {fileID: 4800000, guid: 00bfd9073c8134545b7e568ea90491de, type: 3}
+  m_ShaderKeywords: ENABLE_BILLBOARD
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -40,11 +40,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 18fa97b5b26e4c24ebd5f795ff2f64e5, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Noise:
+        m_Texture: {fileID: 2800000, guid: b902fafec9deab94b8c71ebcc5881815, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
@@ -55,27 +59,31 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _StrengthFilter:
+        m_Texture: {fileID: 2800000, guid: 0307db86f494c2e47a648b491c6e7252, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _BumpScale: 1
-    - _Cutoff: 0.1
+    - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
+    - _DistortStrength: 0.1
     - _DstBlend: 0
-    - _Frequency: 2
+    - _ENABLE_BILLBOARD: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _HeightCutoff: 0.1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
+    - _Speed: 5
     - _SrcBlend: 1
     - _UVSec: 0
-    - _WaveSize: 0.4
+    - _VerticalBillboarding: 1
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Direction: {r: 1, g: 0, b: 1, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}

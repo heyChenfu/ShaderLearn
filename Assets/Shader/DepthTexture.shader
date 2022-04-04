@@ -9,7 +9,7 @@ Shader "Learn/DepthTextureTest"
 
 		Pass
 		{
-			ZTest Always
+			ZTest Always //表示无论被不被遮住，都一直绘制
 			Cull Off
 			ZWrite Off
 			Fog{ Mode Off }
