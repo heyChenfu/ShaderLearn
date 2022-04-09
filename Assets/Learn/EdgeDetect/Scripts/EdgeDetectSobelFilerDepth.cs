@@ -2,7 +2,7 @@
 using UnityEngine;
 
 [ExecuteInEditMode]
-public sealed class SobelFilerDepthOutlineRenderer : MonoBehaviour
+public sealed class EdgeDetectSobelFilerDepth : MonoBehaviour
 {
     public Material _sobelOutlineMaterial;
 

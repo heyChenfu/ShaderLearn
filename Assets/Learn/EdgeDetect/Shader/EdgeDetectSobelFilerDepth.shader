@@ -1,5 +1,5 @@
 ﻿//边缘检测(outlined using depth only)
-Shader "Learn/SobelFilterDepth" {
+Shader "Learn/EdgeDetectSobelFilerDepth" {
 
 	Properties {
 		[HideInInspector]_MainTex ("Base (RGB)", 2D) = "white" {}
