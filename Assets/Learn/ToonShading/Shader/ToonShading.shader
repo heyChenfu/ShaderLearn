@@ -1,4 +1,5 @@
-﻿Shader "Learn/ToonShading"
+﻿//有单独Pass顶点外扩描边的卡通渲染Shader
+Shader "Learn/ToonShading"
 {
     Properties
     {
