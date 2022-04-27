@@ -250,7 +250,7 @@ Shader "Learn/TreeLeaves"
                 // =================================================================
 
                 o.pos = UnityObjectToClipPos(v.vertex);
-                TRANSFER_SHADOW_CASTER(o);
+                TRANSFER_SHADOW_CASTER_NORMALOFFSET(o);
 
                 return o;
             }
