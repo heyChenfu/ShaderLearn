@@ -42,8 +42,8 @@ Shader "Learn/WavingTree"
                 float3 diff : COLOR;
                 float2 uv : TEXCOORD0;
                 float4 posWorld : TEXCOORD1;
-                UNITY_FOG_COORDS(2)
-                LIGHTING_COORDS(3, 4)
+                LIGHTING_COORDS(2, 3)
+                UNITY_FOG_COORDS(4)
             };
 
             float4 _Color;
@@ -111,8 +111,8 @@ Shader "Learn/WavingTree"
                 o.posWorld = mul(unity_ObjectToWorld, v.vertex);
                 o.diff = diffuseReflection;
                 UNITY_SETUP_INSTANCE_ID(v);
-                UNITY_TRANSFER_FOG(o, o.pos);
                 TRANSFER_VERTEX_TO_FRAGMENT(o);
+                UNITY_TRANSFER_FOG(o, o.pos);
 
                 return o;
             }
@@ -125,7 +125,7 @@ Shader "Learn/WavingTree"
                 clip(albedo.a - _Cutoff);
 
                 fixed4 diffuse = fixed4(albedo.rgb * i.diff, 1);
-                UNITY_LIGHT_ATTENUATION(atten, i, i.posWorld);
+                fixed atten = LIGHT_ATTENUATION(i);
                 fixed4 col = ambient + diffuse * atten;
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, albedo);
@@ -158,8 +158,8 @@ Shader "Learn/WavingTree"
             };
 
             struct v2f{
-                float4 pos : SV_POSITION;
-                float2 uv : TEXCOORD0;
+                V2F_SHADOW_CASTER; //申请阴影数据
+                float2 uv : TEXCOORD1;
             };
 
             float4 _Color;

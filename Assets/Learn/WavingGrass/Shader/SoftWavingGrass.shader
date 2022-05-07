@@ -181,8 +181,8 @@ Shader "Learn/SoftWavingGrass"
 
             struct v2f
             {
-                float4 pos : SV_POSITION;
-                float2 uv : TEXCOORD0;
+                V2F_SHADOW_CASTER; //申请阴影数据
+                float2 uv : TEXCOORD1;
 
             };
 

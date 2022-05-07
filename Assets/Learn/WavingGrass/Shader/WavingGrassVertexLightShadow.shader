@@ -111,8 +111,8 @@ Shader "Learn/WavingGrassVertexLightShadow"
             fixed4 _Direction;
 
 			struct v2f {
-				half2 uv : TEXCOORD0;
 				V2F_SHADOW_CASTER;
+				half2 uv : TEXCOORD1;
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 

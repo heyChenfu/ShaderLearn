@@ -120,10 +120,10 @@ Shader "Learn/WavingTreeNoise"
 
             struct v2f
             {
-                float4 pos : SV_POSITION;
                 float3 color : COLOR;
-                float2 texcood : TEXCOORD0;
-                float4 posWorld : TEXCOORD1;
+                V2F_SHADOW_CASTER; //申请阴影数据
+                float2 texcood : TEXCOORD1;
+                float4 posWorld : TEXCOORD2;
             };
 
             float4 _Color;
