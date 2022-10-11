@@ -1,7 +1,4 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-//溶解效果
+﻿//溶解效果, 噪声纹理+透明度测试
 Shader "Learn/Dissolve"
 {
 	Properties {
@@ -71,6 +68,7 @@ Shader "Learn/Dissolve"
 				//模型在展UV的时候会出现正反的状态, 因此最后要乘以 v.tangent.w，翻转方向
 				// float3 binormal = cross( normalize(v.normal), normalize(v.tangent.xyz) ) * v.tangent.w;
 				// float3x3 rotation = float3x3( v.tangent.xyz, binormal, v.normal )
+				//定义转换world space的向量到tangent space的rotation矩阵
 				TANGENT_SPACE_ROTATION;
                 //把光源向量变换到切线空间
   				o.lightDir = mul(rotation, ObjSpaceLightDir(v.vertex)).xyz;
@@ -102,7 +100,7 @@ Shader "Learn/Dissolve"
 				burnColor = pow(burnColor, 5);
 				
 				UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
-				fixed3 finalColor = lerp(ambient + diffuse * atten, burnColor, t /* * step(0.0001, _BurnAmount)*/); //对最终颜色插值
+				fixed3 finalColor = lerp(ambient + diffuse * atten, burnColor, t * step(0.0001, _BurnAmount)); //对最终颜色插值
 				
 				return fixed4(finalColor, 1);
 			}
