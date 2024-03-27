@@ -1,5 +1,5 @@
 ﻿//边缘检测, Roberts算子, 使用法线+深度纹理
-Shader "Unlit/EdgeDetectRobertsNormalsAndDepth"
+Shader "Learn/EdgeDetectRobertsNormalsAndDepth"
 {
 	Properties {
 		_MainTex ("Base (RGB)", 2D) = "white" {}
